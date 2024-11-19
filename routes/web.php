@@ -16,7 +16,10 @@ Route::get('/', function () {
 });
 
 Route::controller(PostController::class)->prefix('/post')->name('post.')->group(function () {
+    // Все посты
     Route::get('/', 'index')->name('index');
+    // Страница поста
+    Route::get('/{post}', 'show')->name('show');
 });
 
 

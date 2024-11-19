@@ -17,6 +17,8 @@ class PostTest extends TestCase {
 
     /**
      * Получение всех постов.
+     *
+     * @return void
      */
     public function test_get_posts_index(): void {
         /**
@@ -31,5 +33,28 @@ class PostTest extends TestCase {
         $this->assertDatabaseCount('posts', 5);
 
         $response->assertStatus(200);
+    }
+
+    /**
+     * Получение страницы поста.
+     *
+     * @return void
+     */
+    public function test_get_post_show(): void {
+        /**
+         * Для вывода ошибок при выполнении текущего теста
+         */
+        $this->withoutExceptionHandling();
+
+        $post = Post::factory()->create();
+
+        $response = $this->get('/post/' . $post->id);
+
+        $this->assertDatabaseCount('posts', 1);
+
+        $response->assertStatus(200);
+
+        // Также проверка на статус 200
+        $response->assertOk();
     }
 }
