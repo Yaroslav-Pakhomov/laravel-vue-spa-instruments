@@ -18,6 +18,13 @@ Route::get('/', function () {
 Route::controller(PostController::class)->prefix('/post')->name('post.')->group(function () {
     // Все посты
     Route::get('/', 'index')->name('index');
+
+    // Страница формы созания поста
+    Route::get('/create', 'create')->name('create');
+
+    // Создание поста, отправка данных
+    Route::post('/', 'store')->name('store');
+
     // Страница поста
     Route::get('/{post}', 'show')->name('show');
 });

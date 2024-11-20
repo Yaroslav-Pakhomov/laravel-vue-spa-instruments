@@ -57,4 +57,36 @@ class PostTest extends TestCase {
         // Также проверка на статус 200
         $response->assertOk();
     }
+
+    public function test_get_post_create(): void {
+        /**
+         * Для вывода ошибок при выполнении текущего теста
+         */
+        $this->withoutExceptionHandling();
+
+        $response = $this->get('/post/create');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_get_post_store(): void {
+        /**
+         * Для вывода ошибок при выполнении текущего теста
+         */
+        $this->withoutExceptionHandling();
+
+        $post = Post::factory()->create();
+
+        $response = $this->post('/post', $post->toArray());
+
+        // Также проверка ответа на статус 200
+        $response->assertOk();
+
+        // Проверка БД, что запись создана c текущими данными
+        $this->assertDatabaseHas('posts', [
+            'title'       => $post->title,
+            'description' => $post->description,
+            'image_url'   => $post->image_url,
+        ]);
+    }
 }
