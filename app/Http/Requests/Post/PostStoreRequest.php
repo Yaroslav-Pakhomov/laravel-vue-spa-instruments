@@ -21,6 +21,7 @@ class PostStoreRequest extends FormRequest {
      * @return array<string, ValidationRule|array|string>
      */
     public function rules(): array {
+        // dd($this->all());
         return [
             'title'       => 'required|string',
             'description' => 'nullable|string',
