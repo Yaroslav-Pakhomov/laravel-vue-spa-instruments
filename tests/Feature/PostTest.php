@@ -6,7 +6,11 @@ namespace Tests\Feature;
 
 use App\Models\Post;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
+
+// use Illuminate\Http\Testing\File;
 
 class PostTest extends TestCase {
 
@@ -75,7 +79,20 @@ class PostTest extends TestCase {
          */
         $this->withoutExceptionHandling();
 
+        /**
+         * Создание имитации хранилища в рамках данного теста
+         * !!! Важно, чтобы диски совпадали при тестировании и загрузке файлов,
+         * иначе тестовые файлы будут записываться.
+         */
+        Storage::fake('local');
+        // Имитация загрузки и создания мнимого изображения
+        $test_img = UploadedFile::fake()->create('test_img.jpg');
+        // 2-ой способ создания файла
+        // $file = File::create('my_img.jpg');
+
+        // Создание поста
         $post = Post::factory()->create();
+        $post["image_url"] = $test_img;
 
         $response = $this->post('/post', $post->toArray());
 
@@ -86,7 +103,12 @@ class PostTest extends TestCase {
         $this->assertDatabaseHas('posts', [
             'title'       => $post->title,
             'description' => $post->description,
-            'image_url'   => $post->image_url,
+            'image_url'   => 'public/images/main_img/' . $test_img->hashName(),
         ]);
+
+        // Проверка, что один или несколько файлов были сохранены...
+        Storage::disk('local')->assertExists(['public/images/main_img/' . $test_img->hashName()]);
+        // Проверка на отсутствие файла в реальном хранилище
+        Storage::disk('local')->assertMissing($test_img->hashName());
     }
 }

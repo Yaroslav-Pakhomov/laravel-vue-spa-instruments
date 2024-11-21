@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Post\PostStoreRequest;
 use App\Http\Resources\Post\PostResource;
 use App\Models\Post;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Response;
 use Inertia\ResponseFactory;
 
@@ -55,6 +56,10 @@ class PostController extends Controller {
      */
     public function store(PostStoreRequest $request): Response|ResponseFactory {
         $data = $request->validated();
+
+        if (!empty($data["image_url"])) {
+            $data["image_url"] = Storage::disk('local')->put('public/images/main_img', $data["image_url"]);
+        }
         $post = Post::query()->create($data);
         $post = PostResource::make($post)->resolve();
 
