@@ -127,6 +127,77 @@ class PostTest extends TestCase {
         $response->assertValid(['title', 'description', 'image_url']);
     }
 
+    /**
+     * Получение страницы редактирования поста.
+     *
+     * @return void
+     */
+    public function test_get_post_edit(): void {
+        /**
+         * Для вывода ошибок при выполнении текущего теста
+         */
+        $this->withoutExceptionHandling();
+
+        $post = Post::factory()->create();
+
+        $response = $this->get('/post/' . $post->id . '/edit');
+
+        $response->assertStatus(200);
+    }
+
+    /**
+     * Проверка отправки формы/обновление поста в БД.
+     *
+     * @return void
+     */
+    public function test_get_post_update(): void {
+        /**
+         * Для вывода ошибок при выполнении текущего теста
+         */
+        $this->withoutExceptionHandling();
+
+        /**
+         * Создание имитации хранилища в рамках данного теста
+         * !!! Важно, чтобы диски совпадали при тестировании и загрузке файлов,
+         * иначе тестовые файлы будут записываться.
+         */
+        Storage::fake('local');
+        // Имитация загрузки и создания мнимого изображения
+        $test_img = UploadedFile::fake()->create('test_img.jpg');
+        // 2-ой способ создания файла
+        // $file = File::create('my_img.jpg');
+        $data = [
+            'title'       => 'test_title',
+            'description' => 'test_description',
+            'image_url'   => $test_img,
+        ];
+
+        // Создание поста
+        $post = Post::factory()->create();
+
+        $response = $this->patch('/post/' . $post->id, $data);
+
+        // Также проверка ответа на статус 200
+        $response->assertOk();
+
+        // Проверка БД, что запись создана c текущими данными
+        $this->assertDatabaseHas('posts', [
+            'id'          => (int)$post->id,
+            'title'       => 'test_title',
+            'description' => 'test_description',
+            'image_url'   => 'public/images/main_img/' . $test_img->hashName(),
+        ]);
+
+        // Проверка, что один или несколько файлов были сохранены...
+        Storage::disk('local')->assertExists(['public/images/main_img/' . $test_img->hashName()]);
+        // Проверка на отсутствие файла в реальном хранилище
+        Storage::disk('local')->assertMissing($test_img->hashName());
+
+        // Утверждает, что ошибок валидации нет
+        $response->assertValid();
+        // Утверждает, что нет ошибок валидации для указанных ключей
+        $response->assertValid(['title', 'description', 'image_url']);
+    }
 
     /**
      * Проверка валидации поля "title"

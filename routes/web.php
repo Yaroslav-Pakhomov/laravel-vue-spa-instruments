@@ -19,7 +19,7 @@ Route::controller(PostController::class)->prefix('/post')->name('post.')->group(
     // Все посты
     Route::get('/', 'index')->name('index');
 
-    // Страница формы созания поста
+    // Страница формы создания поста
     Route::get('/create', 'create')->name('create');
 
     // Создание поста, отправка данных
@@ -27,6 +27,12 @@ Route::controller(PostController::class)->prefix('/post')->name('post.')->group(
 
     // Страница поста
     Route::get('/{post}', 'show')->name('show');
+
+    // Страница редактирования поста
+    Route::get('/{post}/edit', 'edit')->name('edit');
+
+    // Обновление поста, отправка данных
+    Route::patch('/{post}', 'update')->name('update');
 });
 
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Post\PostStoreRequest;
+use App\Http\Requests\Post\PostUpdateRequest;
 use App\Http\Resources\Post\PostResource;
 use App\Models\Post;
 use Illuminate\Support\Facades\Storage;
@@ -39,7 +40,7 @@ class PostController extends Controller {
     }
 
     /**
-     * Страница поста
+     * Страница создания поста
      *
      * @return Response|ResponseFactory
      */
@@ -61,6 +62,37 @@ class PostController extends Controller {
             $data["image_url"] = Storage::disk('local')->put('public/images/main_img', $data["image_url"]);
         }
         $post = Post::query()->create($data);
+        $post = PostResource::make($post)->resolve();
+
+        return inertia("Post/Show", compact('post'));
+    }
+
+    /**
+     * Страница редактирования поста
+     *
+     * @param Post $post
+     *
+     * @return Response|ResponseFactory
+     */
+    public function edit(Post $post): Response|ResponseFactory {
+        return inertia("Post/Edit", compact('post'));
+    }
+
+    /**
+     * Форма обновления поста в БД
+     *
+     * @param PostUpdateRequest $request
+     * @param Post              $post
+     *
+     * @return Response|ResponseFactory
+     */
+    public function update(PostUpdateRequest $request, Post $post): Response|ResponseFactory {
+        $data = $request->validated();
+
+        if (!empty($data["image_url"])) {
+            $data["image_url"] = Storage::disk('local')->put('public/images/main_img', $data["image_url"]);
+        }
+        $post->update($data);
         $post = PostResource::make($post)->resolve();
 
         return inertia("Post/Show", compact('post'));
