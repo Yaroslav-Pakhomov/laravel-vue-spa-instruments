@@ -200,6 +200,34 @@ class PostTest extends TestCase {
     }
 
     /**
+     * Проверка отправки формы/удаление поста в БД.
+     *
+     * @return void
+     */
+    public function test_get_post_delete(): void {
+        /**
+         * Для вывода ошибок при выполнении текущего теста
+         */
+        $this->withoutExceptionHandling();
+
+        // Создание поста
+        $post = Post::factory()->create();
+
+        $response = $this->delete('/post/' . $post->id);
+
+        // Также проверка ответа на статус 200
+        $response->assertOk();
+
+        // Проверка БД, что запись создана c текущими данными
+        $this->assertDatabaseMissing('posts', [
+            'id'          => $post->id,
+            'title'       => $post->title,
+            'description' => $post->description,
+            'image_url'   => $post->image_url,
+        ]);
+    }
+
+    /**
      * Проверка валидации поля "title"
      * 'required' и 'string'
      *

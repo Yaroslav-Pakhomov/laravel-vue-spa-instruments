@@ -97,4 +97,19 @@ class PostController extends Controller {
 
         return inertia("Post/Show", compact('post'));
     }
+
+    /**
+     * Форма удаление поста в БД
+     *
+     * @param Post $post
+     *
+     * @return Response|ResponseFactory
+     */
+    public function delete(Post $post): Response|ResponseFactory {
+        $post->delete();
+        $posts = Post::all();
+        $posts = PostResource::collection($posts)->resolve();
+
+        return inertia("Post/Index", compact('posts'));
+    }
 }
