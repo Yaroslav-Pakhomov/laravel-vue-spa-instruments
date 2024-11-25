@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\Post;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -18,6 +19,21 @@ class PostTest extends TestCase {
      * Для очищения БД перед запуском тестов
      */
     use RefreshDatabase;
+
+    /**
+     * Действия выполненные для всех тестов по умолчанию
+     *
+     * @return void
+     */
+    protected function setUp(): void {
+        parent::setUp();
+        /**
+         * Создание имитации хранилища в рамках данного теста
+         * !!! Важно, чтобы диски совпадали при тестировании и загрузке файлов,
+         * иначе тестовые файлы будут записываться.
+         */
+        Storage::fake('local');
+    }
 
     /**
      * Получение всех постов.
@@ -89,12 +105,6 @@ class PostTest extends TestCase {
          */
         $this->withoutExceptionHandling();
 
-        /**
-         * Создание имитации хранилища в рамках данного теста
-         * !!! Важно, чтобы диски совпадали при тестировании и загрузке файлов,
-         * иначе тестовые файлы будут записываться.
-         */
-        Storage::fake('local');
         // Имитация загрузки и создания мнимого изображения
         $test_img = UploadedFile::fake()->create('test_img.jpg');
         // 2-ой способ создания файла
@@ -156,12 +166,6 @@ class PostTest extends TestCase {
          */
         $this->withoutExceptionHandling();
 
-        /**
-         * Создание имитации хранилища в рамках данного теста
-         * !!! Важно, чтобы диски совпадали при тестировании и загрузке файлов,
-         * иначе тестовые файлы будут записываться.
-         */
-        Storage::fake('local');
         // Имитация загрузки и создания мнимого изображения
         $test_img = UploadedFile::fake()->create('test_img.jpg');
         // 2-ой способ создания файла
@@ -200,11 +204,12 @@ class PostTest extends TestCase {
     }
 
     /**
-     * Проверка отправки формы/удаление поста в БД.
+     * Проверка отправки формы/удаление поста в БД
+     * авторизованным пользователем.
      *
      * @return void
      */
-    public function test_get_post_delete(): void {
+    public function test_get_post_auth_delete(): void {
         /**
          * Для вывода ошибок при выполнении текущего теста
          */
@@ -212,14 +217,42 @@ class PostTest extends TestCase {
 
         // Создание поста
         $post = Post::factory()->create();
+        // Создание пользователя
+        $user = User::factory()->create();
 
-        $response = $this->delete('/post/' . $post->id);
+        // Удаление поста авторизованным пользователем actingAs()
+        $response = $this->actingAs($user)->delete('/post/' . $post->id);
 
         // Также проверка ответа на статус 200
         $response->assertOk();
 
-        // Проверка БД, что запись создана c текущими данными
+        // Проверка БД, что запись отсутствует c текущими данными
         $this->assertDatabaseMissing('posts', [
+            'id'          => $post->id,
+            'title'       => $post->title,
+            'description' => $post->description,
+            'image_url'   => $post->image_url,
+        ]);
+    }
+
+    /**
+     * Проверка, что только авторизованный пользователь
+     * может удалять
+     *
+     * @return void
+     */
+    public function test_get_post_only_auth_delete(): void {
+        // Создание поста
+        $post = Post::factory()->create();
+
+        // Удаление поста авторизованным пользователем actingAs()
+        $response = $this->delete('/post/' . $post->id);
+
+        $response->assertStatus(302);
+        $response->assertRedirect();
+
+        // Проверка БД, что запись остался c текущими данными
+        $this->assertDatabaseHas('posts', [
             'id'          => $post->id,
             'title'       => $post->title,
             'description' => $post->description,
@@ -340,12 +373,6 @@ class PostTest extends TestCase {
         // Проверка 'mimes' - начало
         // -------------------------------------
 
-        /**
-         * Создание имитации хранилища в рамках данного теста
-         * !!! Важно, чтобы диски совпадали при тестировании и загрузке файлов,
-         * иначе тестовые файлы будут записываться.
-         */
-        Storage::fake('local');
         // Имитация загрузки и создания мнимого изображения
         $test_file = UploadedFile::fake()->create('test_file.xlsx');
 

@@ -35,7 +35,7 @@ Route::controller(PostController::class)->prefix('/post')->name('post.')->group(
     Route::patch('/{post}', 'update')->name('update');
 
     // Удаление поста, отправка данных
-    Route::delete('/{post}', 'delete')->name('delete');
+    Route::delete('/{post}', 'delete')->name('delete')->middleware(['auth']);
 });
 
 
