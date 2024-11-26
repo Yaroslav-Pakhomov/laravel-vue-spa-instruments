@@ -17,4 +17,7 @@ Route::controller(PostController::class)->prefix('/post')->name('post.')->group(
 
     // Страница поста
     Route::get('/{post}', 'show')->name('show');
+
+    // Обновление поста, отправка данных
+    Route::patch('/{post}', 'update')->name('update');
 });

@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Post\Api\PostStoreRequest;
+use App\Http\Requests\Post\Api\PostUpdateRequest;
 use App\Http\Resources\Post\PostResource;
 use App\Models\Post;
 use Illuminate\Support\Facades\Storage;
@@ -50,6 +51,25 @@ class PostController extends Controller {
         $post = Post::query()->create($data);
 
         // dd(PostResource::make($post)->resolve());
+        return PostResource::make($post)->resolve();
+    }
+
+    /**
+     * Форма обновления поста в БД
+     *
+     * @param PostUpdateRequest $request
+     * @param Post              $post
+     *
+     * @return array
+     */
+    public function update(PostUpdateRequest $request, Post $post): array {
+        $data = $request->validated();
+
+        if (!empty($data["image_url"])) {
+            $data["image_url"] = Storage::disk('local')->put('public/images/main_img', $data["image_url"]);
+        }
+        $post->update($data);
+
         return PostResource::make($post)->resolve();
     }
 }

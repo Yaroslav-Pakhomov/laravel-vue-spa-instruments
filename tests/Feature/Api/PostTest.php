@@ -152,6 +152,61 @@ class PostTest extends TestCase {
     }
 
     /**
+     * Проверка отправки формы/обновление поста в БД.
+     *
+     * @return void
+     */
+    public function test_get_post_update(): void {
+        /**
+         * Для вывода ошибок при выполнении текущего теста
+         */
+        $this->withoutExceptionHandling();
+
+        // Имитация загрузки и создания мнимого изображения
+        $test_img = UploadedFile::fake()->create('test_img.jpg');
+        // 2-ой способ создания файла
+        // $file = File::create('my_img.jpg');
+        $data = [
+            'title'       => 'test_title',
+            'description' => 'test_description',
+            'image_url'   => $test_img,
+        ];
+
+        // Создание поста
+        $post = Post::factory()->create();
+
+        $response = $this->patch('api/post/' . $post->id, $data);
+
+        // Проверка БД, что запись создана c текущими данными
+        $this->assertDatabaseHas('posts', [
+            'id'          => (int)$post->id,
+            'title'       => 'test_title',
+            'description' => 'test_description',
+            'image_url'   => 'public/images/main_img/' . $test_img->hashName(),
+        ]);
+
+        // Проверка, что один или несколько файлов были сохранены...
+        Storage::disk('local')->assertExists(['public/images/main_img/' . $test_img->hashName()]);
+        // Проверка на отсутствие файла в реальном хранилище
+        Storage::disk('local')->assertMissing($test_img->hashName());
+
+        // Также проверка ответа на статус 200
+        $response->assertOk()
+            // Утверждает, что ошибок валидации нет
+            ->assertValid()
+            // Утверждает, что нет ошибок валидации для указанных ключей
+            ->assertValid(['title', 'description', 'image_url']);
+
+        // Сравнение ответа с данными обновления
+        $response->assertJson([
+            'id'          => $post->id,
+            'title'       => $data['title'],
+            'description' => $data['description'],
+            'image_url'   => 'public/images/main_img/' . $test_img->hashName(),
+        ]);
+    }
+
+    /**
      * Проверка валидации поля "title"
      * 'required' и 'string'
      *
@@ -182,6 +237,9 @@ class PostTest extends TestCase {
         $response->assertJson([
             "message" => "The title field is required.",
         ]);
+        $response->assertJsonValidationErrors([
+            'title' => "The title field is required.",
+        ]);
         $response->assertInvalid('title');
         // -------------------------------------
         // Проверка 'required' - конец
@@ -202,6 +260,7 @@ class PostTest extends TestCase {
         $response->assertJson([
             "message" => "The title field must be a string.",
         ]);
+        $response->assertJsonValidationErrors('title');
         $response->assertInvalid('title');
         // -------------------------------------
         // Проверка 'string' - конец
