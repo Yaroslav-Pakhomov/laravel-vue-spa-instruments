@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Post\Api\PostStoreRequest;
 use App\Http\Resources\Post\PostResource;
 use App\Models\Post;
+use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller {
 
@@ -32,4 +34,22 @@ class PostController extends Controller {
         return PostResource::make($post)->resolve();
     }
 
+    /**
+     * Форма создания поста в БД
+     *
+     * @param PostStoreRequest $request
+     *
+     * @return array
+     */
+    public function store(PostStoreRequest $request): array {
+        $data = $request->validated();
+
+        if (!empty($data["image_url"])) {
+            $data["image_url"] = Storage::disk('local')->put('public/images/main_img', $data["image_url"]);
+        }
+        $post = Post::query()->create($data);
+
+        // dd(PostResource::make($post)->resolve());
+        return PostResource::make($post)->resolve();
+    }
 }
