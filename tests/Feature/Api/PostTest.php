@@ -65,4 +65,32 @@ class PostTest extends TestCase {
         $response->assertStatus(200);
     }
 
+    /**
+     * Получение страницы поста.
+     *
+     * @return void
+     */
+    public function test_get_post_show(): void {
+        /**
+         * Для вывода ошибок при выполнении текущего теста
+         */
+        $this->withoutExceptionHandling();
+
+        $post = Post::factory()->create();
+        // Проверка создания данных в БД
+        $this->assertDatabaseCount('posts', 1);
+
+        $response = $this->get('api/post/' . $post->id);
+
+        // Проверка на статус 200
+        $response->assertStatus(200)->assertOk()
+            // Сравнение ответа с созданными данными
+            ->assertJson([
+                'id'          => $post->id,
+                'title'       => $post->title,
+                'description' => $post->description,
+                'image_url'   => $post->image_url,
+            ]);
+    }
+
 }

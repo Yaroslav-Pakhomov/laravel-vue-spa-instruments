@@ -21,4 +21,15 @@ class PostController extends Controller {
         return PostResource::collection($posts)->resolve();
     }
 
+    /**
+     * Страница поста
+     *
+     * @param Post $post
+     *
+     * @return array
+     */
+    public function show(Post $post): array {
+        return PostResource::make($post)->resolve();
+    }
+
 }
