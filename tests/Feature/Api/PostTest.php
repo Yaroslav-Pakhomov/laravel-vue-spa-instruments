@@ -32,6 +32,10 @@ class PostTest extends TestCase {
          * иначе тестовые файлы будут записываться.
          */
         Storage::fake('local');
+        // Ответ API всегда д.б. JSON-формата
+        $this->withHeaders([
+            'Accept' => 'application/json',
+        ]);
     }
 
     /**
@@ -145,5 +149,150 @@ class PostTest extends TestCase {
             'description' => $post->description,
             'image_url'   => 'public/images/main_img/' . $test_img->hashName(),
         ]);
+    }
+
+    /**
+     * Проверка валидации поля "title"
+     * 'required' и 'string'
+     *
+     * @return void
+     */
+    public function test_check_validate_title_post(): void {
+        /**
+         * !!! Важно вызов withoutExceptionHandling() не нужен, т.к. мы
+         * проверяем на получение ошибки при отправке некорректных данных
+         */
+
+        // -------------------------------------
+        // Проверка 'required' - начало
+        // -------------------------------------
+        // Создание поста
+        $post = Post::factory()->create();
+        // Изменение данных для проверки
+        $post->title = null;
+        $post->image_url = '';
+
+        $response = $this->post('api/post', $post->toArray());
+        // // Код статуса ответа
+        // dd($response->status());
+        // // Ответ целиком
+        // dd($response->getContent());
+
+        $response->assertStatus(422);
+        $response->assertJson([
+            "message" => "The title field is required.",
+        ]);
+        $response->assertInvalid('title');
+        // -------------------------------------
+        // Проверка 'required' - конец
+        // -------------------------------------
+
+        // -------------------------------------
+        // Проверка 'string' - начало
+        // -------------------------------------
+        // Создание поста
+        $post = Post::factory()->create();
+        // Изменение данных для проверки
+        $post->title = 1;
+        $post->image_url = '';
+
+        $response = $this->post('api/post', $post->toArray());
+
+        $response->assertStatus(422);
+        $response->assertJson([
+            "message" => "The title field must be a string.",
+        ]);
+        $response->assertInvalid('title');
+        // -------------------------------------
+        // Проверка 'string' - конец
+        // -------------------------------------
+    }
+
+    /**
+     * Проверка валидации поля "description"
+     * 'string'
+     *
+     * @return void
+     */
+    public function test_check_validate_description_post(): void {
+        /**
+         * !!! Важно вызов withoutExceptionHandling() не нужен, т.к. мы
+         * проверяем на получение ошибки при отправке некорректных данных
+         */
+
+        // -------------------------------------
+        // Проверка 'string' - начало
+        // -------------------------------------
+        // Создание поста
+        $post = Post::factory()->create();
+        // Изменение данных для проверки
+        $post->description = 1;
+        $post->image_url = '';
+
+        $response = $this->post('api/post', $post->toArray());
+
+        $response->assertStatus(422);
+        $response->assertJson([
+            "message" => "The description field must be a string.",
+        ]);
+        $response->assertInvalid('description');
+        // -------------------------------------
+        // Проверка 'string' - конец
+        // -------------------------------------
+    }
+
+    /**
+     * Проверка валидации поля "image_url"
+     * 'file' и 'mimes'
+     *
+     * @return void
+     */
+    public function test_check_validate_image_url_post(): void {
+        /**
+         * !!! Важно вызов withoutExceptionHandling() не нужен, т.к. мы
+         * проверяем на получение ошибки при отправке некорректных данных
+         */
+
+        // -------------------------------------
+        // Проверка 'file' - начало
+        // -------------------------------------
+        // Создание поста
+        $post = Post::factory()->create();
+
+        $response = $this->post('api/post', $post->toArray());
+
+        $response->assertStatus(422);
+        $response->assertJson([
+            "message" => "The image url field must be a file. (and 1 more error)",
+        ]);
+        $response->assertInvalid('image_url');
+        // -------------------------------------
+        // Проверка 'file' - конец
+        // -------------------------------------
+
+        // -------------------------------------
+        // Проверка 'mimes' - начало
+        // -------------------------------------
+
+        // Имитация загрузки и создания мнимого изображения
+        $test_file = UploadedFile::fake()->create('test_file.xlsx');
+
+        // Создание поста
+        $post = Post::factory()->create();
+        $post->image_url = $test_file;
+        // dd($post->toArray());
+
+        $response = $this->post('api/post', $post->toArray());
+        // Проверка на отсутствие файла в хранилище
+        Storage::disk('local')->assertMissing(['public/images/main_img/' . $test_file->hashName()]);
+
+        $response->assertStatus(422);
+        $response->assertJson([
+            "message" => "The image url field must be a file of type: jpeg, jpg, bmp, png.",
+        ]);
+        $response->assertInvalid('image_url');
+        // -------------------------------------
+        // Проверка 'mimes' - конец
+        // -------------------------------------
     }
 }
