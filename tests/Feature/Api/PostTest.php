@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Api;
 
 use App\Models\Post;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -209,6 +210,82 @@ class PostTest extends TestCase {
             'image_url'   => 'public/images/main_img/' . $test_img->hashName(),
             'created_at'  => $post->created_at->format('d-m-Y'),
             'updated_at'  => date('d-m-Y'),
+        ]);
+    }
+
+    /**
+     * Проверка отправки формы/удаление поста в БД
+     * авторизованным пользователем.
+     *
+     * @return void
+     */
+    public function test_get_post_auth_delete(): void {
+        /**
+         * Для вывода ошибок при выполнении текущего теста
+         */
+        $this->withoutExceptionHandling();
+
+        // Создание поста
+        $post = Post::factory()->create();
+        // Создание пользователя
+        $user = User::factory()->create();
+
+        // Удаление поста авторизованным пользователем actingAs()
+        $response = $this->actingAs($user)->delete('api/post/' . $post->id);
+
+        // Проверка БД, что запись отсутствует c текущими данными
+        $this->assertDatabaseMissing('posts', [
+            'id'          => $post->id,
+            'title'       => $post->title,
+            'description' => $post->description,
+            'image_url'   => $post->image_url,
+        ]);
+
+        // 1-ый вариант ответа
+        // // Получаем все посты из БД
+        // $posts = Post::all();
+        // // Преобразование коллекции в json для проверки ответа
+        // $json_posts = $posts->map(function ($post) {
+        //     return [
+        //         'id'          => $post->id,
+        //         'title'       => $post->title,
+        //         'description' => $post->description,
+        //         'image_url'   => $post->image_url,
+        //     ];
+        // })->toArray();
+        // // Сравнение ответа с созданными данными
+        // $response->assertJson($json_posts);
+
+        // 2-ой вариант ответа
+        $response->assertJson([
+            'message' => 'Post deleted successfully.',
+        ]);
+    }
+
+    /**
+     * Проверка, что только авторизованный пользователь
+     * может удалять
+     *
+     * @return void
+     */
+    public function test_get_post_only_auth_delete(): void {
+        // Создание поста
+        $post = Post::factory()->create();
+
+        // Удаление поста авторизованным пользователем actingAs()
+        $response = $this->delete('api/post/' . $post->id);
+        // dd($response->status());
+
+        $response->assertStatus(401)
+            // То же самое
+            ->assertUnauthorized();
+
+        // Проверка БД, что запись остался c текущими данными
+        $this->assertDatabaseHas('posts', [
+            'id'          => $post->id,
+            'title'       => $post->title,
+            'description' => $post->description,
+            'image_url'   => $post->image_url,
         ]);
     }
 

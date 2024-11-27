@@ -20,4 +20,7 @@ Route::controller(PostController::class)->prefix('/post')->name('post.')->group(
 
     // Обновление поста, отправка данных
     Route::patch('/{post}', 'update')->name('update');
+
+    // Удаление поста, отправка данных
+    Route::delete('/{post}', 'delete')->name('delete')->middleware(['auth']);
 });

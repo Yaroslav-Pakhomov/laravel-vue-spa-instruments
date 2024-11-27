@@ -9,6 +9,7 @@ use App\Http\Requests\Post\Api\PostStoreRequest;
 use App\Http\Requests\Post\Api\PostUpdateRequest;
 use App\Http\Resources\Post\PostResource;
 use App\Models\Post;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller {
@@ -71,5 +72,24 @@ class PostController extends Controller {
         $post->update($data);
 
         return PostResource::make($post)->resolve();
+    }
+
+    /**
+     * Форма удаление поста в БД
+     *
+     * @param Post $post
+     *
+     * @return JsonResponse
+     */
+    public function delete(Post $post): JsonResponse {
+        $post->delete();
+        // 1-ый вариант ответа
+        // $posts = Post::all();
+        // return PostResource::collection($posts)->resolve();
+
+        // 2-ой вариант ответа
+        return response()->json([
+            'message' => 'Post deleted successfully.',
+        ]);
     }
 }
