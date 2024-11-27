@@ -142,12 +142,16 @@ class PostTest extends TestCase {
             // Утверждает, что нет ошибок валидации для указанных ключей
             ->assertValid(['title', 'description', 'image_url']);
 
+        // $response->getContent();
+
         // Сравнение ответа с созданными данными
         $response->assertJson([
             // 'id'       => $post->id + 1,
             'title'       => $post->title,
             'description' => $post->description,
             'image_url'   => 'public/images/main_img/' . $test_img->hashName(),
+            'created_at'  => date('d-m-Y'),
+            'updated_at'  => date('d-m-Y'),
         ]);
     }
 
@@ -203,6 +207,8 @@ class PostTest extends TestCase {
             'title'       => $data['title'],
             'description' => $data['description'],
             'image_url'   => 'public/images/main_img/' . $test_img->hashName(),
+            'created_at'  => $post->created_at->format('d-m-Y'),
+            'updated_at'  => date('d-m-Y'),
         ]);
     }
 
