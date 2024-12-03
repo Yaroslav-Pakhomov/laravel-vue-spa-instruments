@@ -42,6 +42,22 @@ class RedisTestCommand extends Command {
         Cache::forget('key_test');
         // Cache::delete('key_test');
 
+
+        $str = 'string_test';
+        // $result = '';
+        // if (Cache::has('string_key')) {
+        //     $result = Cache::get('string_key');
+        // } else {
+        //     Cache::put('string_key', $str);
+        //     $result = $str;
+        // }
+
+        // Аналог записи выше, rememberForever используется без времени (с.)
+        $result = Cache::remember('string_key', 60 * 60, function () use ($str) {
+            return $str;
+        });
+        dump($result);
+
         dd('Redis command');
     }
 }
