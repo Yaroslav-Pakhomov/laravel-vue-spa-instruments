@@ -72,10 +72,11 @@ class PostTest extends TestCase {
 
         $this->assertDatabaseCount('posts', 1);
 
-        $response->assertStatus(200);
+        // $response->assertStatus(200);
+        $response->assertStatus(302);
 
         // Также проверка на статус 200
-        $response->assertOk();
+        // $response->assertOk();
     }
 
     /**
@@ -117,7 +118,8 @@ class PostTest extends TestCase {
         $response = $this->post('/post', $post->toArray());
 
         // Также проверка ответа на статус 200
-        $response->assertOk();
+        // $response->assertOk();
+        $response->assertStatus(302);
 
         // Проверка БД, что запись создана c текущими данными
         $this->assertDatabaseHas('posts', [
@@ -181,8 +183,10 @@ class PostTest extends TestCase {
 
         $response = $this->patch('/post/' . $post->id, $data);
 
+        // dd($response->status());
+
         // Также проверка ответа на статус 200
-        $response->assertOk();
+        $response->assertStatus(302);
 
         // Проверка БД, что запись создана c текущими данными
         $this->assertDatabaseHas('posts', [

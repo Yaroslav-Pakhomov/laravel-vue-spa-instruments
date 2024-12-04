@@ -8,6 +8,9 @@ use App\Http\Requests\Post\PostStoreRequest;
 use App\Http\Requests\Post\PostUpdateRequest;
 use App\Http\Resources\Post\PostResource;
 use App\Models\Post;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Response;
 use Inertia\ResponseFactory;
@@ -20,8 +23,11 @@ class PostController extends Controller {
      * @return Response|ResponseFactory
      */
     public function index(): Response|ResponseFactory {
-        $posts = Post::all();
-        $posts = PostResource::collection($posts)->resolve();
+        Cache::forget('key_test');
+        $posts = Cache::rememberForever('posts:all', function () {
+            $posts = Post::all();
+            return PostResource::collection($posts)->resolve();
+        });
 
         return inertia("Post/Index", compact('posts'));
     }
@@ -29,12 +35,18 @@ class PostController extends Controller {
     /**
      * Страница поста
      *
-     * @param Post $post
+     * @param int $id
      *
-     * @return Response|ResponseFactory
+     * @return Response|ResponseFactory|RedirectResponse
      */
-    public function show(Post $post): Response|ResponseFactory {
-        $post = PostResource::make($post)->resolve();
+    // public function show(Post $post): Response|ResponseFactory {
+    // $post = PostResource::make($post)->resolve();
+    public function show(int $id): Response|ResponseFactory|RedirectResponse {
+        // Если нет в кэше
+        if (!Cache::has("posts:{$id}")) {
+            return redirect()->route('post.index');
+        }
+        $post = Cache::get("posts:{$id}");
 
         return inertia("Post/Show", compact('post'));
     }
@@ -53,18 +65,51 @@ class PostController extends Controller {
      *
      * @param PostStoreRequest $request
      *
-     * @return Response|ResponseFactory
+     * @return Response|ResponseFactory|RedirectResponse
      */
-    public function store(PostStoreRequest $request): Response|ResponseFactory {
+    public function store(PostStoreRequest $request): Response|ResponseFactory|RedirectResponse {
         $data = $request->validated();
 
         if (!empty($data["image_url"])) {
             $data["image_url"] = Storage::disk('local')->put('public/images/main_img', $data["image_url"]);
         }
         $post = Post::query()->create($data);
-        $post = PostResource::make($post)->resolve();
 
-        return inertia("Post/Show", compact('post'));
+        $post = Cache::rememberForever('posts:' . $post->id, function () use ($post) {
+            return PostResource::make($post)->resolve();
+        });
+
+        $posts = Post::all();
+        $posts = PostResource::collection($posts)->resolve();
+        Cache::put('posts:all', $posts);
+
+        return redirect()->route('post.show', $post['id']);
+    }
+
+    /**
+     * Метод для асинхронного запроса axios
+     *
+     * @param PostStoreRequest $request
+     *
+     * @return JsonResponse
+     */
+    public function storePost(PostStoreRequest $request): JsonResponse {
+        $data = $request->validated();
+
+        if (!empty($data["image_url"])) {
+            $data["image_url"] = Storage::disk('local')->put('public/images/main_img', $data["image_url"]);
+        }
+        $post = Post::query()->create($data);
+
+        $post = Cache::rememberForever('posts:' . $post->id, function () use ($post) {
+            return PostResource::make($post)->resolve();
+        });
+
+        $posts = Post::all();
+        $posts = PostResource::collection($posts)->resolve();
+        Cache::put('posts:all', $posts);
+
+        return response()->json($post);
     }
 
     /**
@@ -84,9 +129,9 @@ class PostController extends Controller {
      * @param PostUpdateRequest $request
      * @param Post              $post
      *
-     * @return Response|ResponseFactory
+     * @return Response|ResponseFactory|RedirectResponse
      */
-    public function update(PostUpdateRequest $request, Post $post): Response|ResponseFactory {
+    public function update(PostUpdateRequest $request, Post $post): Response|ResponseFactory|RedirectResponse {
         $data = $request->validated();
 
         if (!empty($data["image_url"])) {
@@ -95,7 +140,13 @@ class PostController extends Controller {
         $post->update($data);
         $post = PostResource::make($post)->resolve();
 
-        return inertia("Post/Show", compact('post'));
+        Cache::put('posts:' . $post['id'], $post);
+
+        $posts = Post::all();
+        $posts = PostResource::collection($posts)->resolve();
+        Cache::put('posts:all', $posts);
+
+        return redirect()->route('post.show', $post['id']);
     }
 
     /**
@@ -109,6 +160,11 @@ class PostController extends Controller {
         $post->delete();
         $posts = Post::all();
         $posts = PostResource::collection($posts)->resolve();
+
+        // Если есть в кэше
+        if (Cache::has("posts:{$post->id}")) {
+            Cache::forget("posts:{$post->id}");
+        }
 
         return inertia("Post/Index", compact('posts'));
     }

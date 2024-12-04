@@ -22,7 +22,12 @@ export default {
      * Св-ва компонента
      */
     data() {
-        return {}
+        return {
+            id         : this.post.id,
+            title      : this.post.title,
+            description: this.post.description,
+            image_url  : this.post.image_url,
+        }
     },
 
     mounted() {
@@ -32,7 +37,16 @@ export default {
     /**
      * Методы компонента
      */
-    methods: {},
+    methods: {
+        updatePost() {
+
+            this.$inertia.patch(this.route('post.update', this.id), {
+                title      : this.title,
+                description: this.description,
+                // image_url  : this.image_url,
+            });
+        },
+    },
 
     computed: {},
 }
@@ -60,23 +74,25 @@ export default {
                                 Title
                             </label>
                             <input type="text" name="name" id="name" placeholder="Title"
-                                   class="w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md" v-model="post.title"/>
+                                   class="w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md"
+                                   v-model="title"/>
                         </div>
                         <div class="mb-5">
                             <label for="phone" class="mb-3 block text-base font-medium text-[#07074D]">
                                 Description
                             </label>
                             <input type="text" name="phone" id="phone" placeholder="Enter your Description"
-                                   class="w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md" v-model="post.description"/>
+                                   class="w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md"
+                                   v-model="description"/>
                         </div>
                         <div class="mb-6">
-                            <p v-if="post.image_url">Ссылка на файл: {{ post.image_url }}</p>
+                            <p v-if="image_url">Ссылка на файл: {{ image_url }}</p>
                             <label for="image" class="block text-lg font-medium text-gray-800 mb-1">Image</label>
-                            <input type="file" id="image" name="image" accept="image/*" class="w-full">
+                            <input type="file" id="image_url" name="image_url" accept="image/*" class="w-full">
                         </div>
 
                         <div class="flex justify-end">
-                            <button type="submit"
+                            <button type="submit" @click.prevent="updatePost"
                                     class="border-4 border-sky-500 px-6 py-2 bg-indigo-500 text-white font-semibold rounded-md hover:bg-indigo-600 focus:outline-none">
                                 Отправить
                             </button>

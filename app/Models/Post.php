@@ -8,6 +8,9 @@ use Database\Factories\PostFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property mixed $id
+ */
 class Post extends Model {
 
     /** @use HasFactory<PostFactory> */

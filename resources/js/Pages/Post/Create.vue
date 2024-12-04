@@ -22,7 +22,11 @@ export default {
      * Св-ва компонента
      */
     data() {
-        return {}
+        return {
+            title      : '',
+            description: '',
+            image_url  : null,
+        }
     },
 
     mounted() {
@@ -32,7 +36,23 @@ export default {
     /**
      * Методы компонента
      */
-    methods: {},
+    methods: {
+        storePost() {
+            // axios.post(this.route('post.storePost'), {
+            //     title      : this.title,
+            //     description: this.description,
+            //     image_url  : this.image_url,
+            // }).then(res => {
+            //     console.log(res);
+            // });
+
+            this.$inertia.post(this.route('post.store'), {
+                title      : this.title,
+                description: this.description,
+                image_url  : this.image_url,
+            });
+        }
+    },
 
     computed: {},
 }
@@ -60,14 +80,16 @@ export default {
                                 Title
                             </label>
                             <input type="text" name="name" id="name" placeholder="Title"
-                                   class="w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md"/>
+                                   class="w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md"
+                                   v-model="title"/>
                         </div>
                         <div class="mb-5">
                             <label for="phone" class="mb-3 block text-base font-medium text-[#07074D]">
                                 Description
                             </label>
                             <input type="text" name="phone" id="phone" placeholder="Enter your Description"
-                                   class="w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md"/>
+                                   class="w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md"
+                                   v-model="description"/>
                         </div>
                         <div class="mb-6">
                             <label for="image" class="block text-lg font-medium text-gray-800 mb-1">Image</label>
@@ -75,7 +97,7 @@ export default {
                         </div>
 
                         <div class="flex justify-end">
-                            <button type="submit"
+                            <button @click.prevent="storePost" type="submit"
                                     class="border-4 border-sky-500 px-6 py-2 bg-indigo-500 text-white font-semibold rounded-md hover:bg-indigo-600 focus:outline-none">
                                 Отправить
                             </button>

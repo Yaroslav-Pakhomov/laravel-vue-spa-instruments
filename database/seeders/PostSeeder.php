@@ -6,6 +6,7 @@ namespace Database\Seeders;
 
 use App\Models\Post;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Cache;
 
 class PostSeeder extends Seeder {
 
@@ -14,5 +15,10 @@ class PostSeeder extends Seeder {
      */
     public function run(): void {
         Post::factory(150)->create();
+
+        // Кэширование каждого поста по ID
+        Post::all()->each(function (Post $post) {
+            Cache::put('posts:' . $post->id, $post);
+        });
     }
 }

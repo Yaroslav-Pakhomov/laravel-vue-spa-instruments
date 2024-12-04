@@ -24,9 +24,11 @@ Route::controller(PostController::class)->prefix('/post')->name('post.')->group(
 
     // Создание поста, отправка данных
     Route::post('/', 'store')->name('store');
+    Route::post('/store-post', 'storePost')->name('storePost');
 
     // Страница поста
-    Route::get('/{post}', 'show')->name('show');
+    // Route::get('/{post}', 'show')->name('show');
+    Route::get('/{id}', 'show')->name('show');
 
     // Страница редактирования поста
     Route::get('/{post}/edit', 'edit')->name('edit');
