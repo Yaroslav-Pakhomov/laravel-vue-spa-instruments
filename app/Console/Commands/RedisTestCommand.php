@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Models\Post;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Redis;
 
 class RedisTestCommand extends Command {
     /**
@@ -58,6 +60,20 @@ class RedisTestCommand extends Command {
         });
         dump($result);
 
+        $post = Post::query()->find(1);
+        // Создание
+        Redis::set('posts:' . $post->id, json_encode($post->toArray()));
+
+        // Получение
+        $post_test_redis = Redis::get('posts:' . 1);
+        $post_test_redis = Post::make((array)json_decode($post_test_redis, true));
+
+        // Метод Redis применение
+        Redis::lpush('posts', 'some_post', 'another_post');
+        $posts_arr = Redis::lrange('posts', 0, -1);
+
+        dump($posts_arr);
+        dump($post_test_redis);
         dd('Redis command');
     }
 }
