@@ -23,10 +23,11 @@ export default {
      */
     data() {
         return {
-            id         : this.post.id,
-            title      : this.post.title,
-            description: this.post.description,
-            image_url  : this.post.image_url,
+            id             : this.post.id,
+            title          : this.post.title,
+            description    : this.post.description,
+            days_for_create: this.post.days_for_create,
+            image_url      : this.post.image_url,
         }
     },
 
@@ -41,8 +42,9 @@ export default {
         updatePost() {
 
             this.$inertia.patch(this.route('post.update', this.id), {
-                title      : this.title,
-                description: this.description,
+                title          : this.title,
+                description    : this.description,
+                days_for_create: this.days_for_create,
                 // image_url  : this.image_url,
             });
         },
@@ -84,6 +86,15 @@ export default {
                             <input type="text" name="phone" id="phone" placeholder="Enter your Description"
                                    class="w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md"
                                    v-model="description"/>
+                        </div>
+                        <div class="mb-5">
+                            <label for="days_for_create" class="mb-3 block text-base font-medium text-[#07074D]">
+                                Days for create
+                            </label>
+                            <input type="number" name="days_for_create" id="days_for_create"
+                                   placeholder="Enter Days for create"
+                                   class="w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md"
+                                   v-model="days_for_create"/>
                         </div>
                         <div class="mb-6">
                             <p v-if="image_url">Ссылка на файл: {{ image_url }}</p>

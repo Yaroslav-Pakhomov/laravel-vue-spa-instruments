@@ -25,6 +25,7 @@ Route::controller(PostController::class)->prefix('/post')->name('post.')->group(
     // Создание поста, отправка данных
     Route::post('/', 'store')->name('store');
     Route::post('/store-post', 'storePost')->name('storePost');
+    Route::post('/store-post-cache', 'storePostCache')->name('storePostCache');
 
     // Страница поста
     // Route::get('/{post}', 'show')->name('show');

@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Post\PostStoreCacheRequest;
 use App\Http\Requests\Post\PostStoreRequest;
 use App\Http\Requests\Post\PostUpdateRequest;
+use App\Http\Resources\Post\PostCacheResource;
 use App\Http\Resources\Post\PostResource;
 use App\Models\Post;
 use Illuminate\Http\JsonResponse;
@@ -57,7 +59,11 @@ class PostController extends Controller {
      * @return Response|ResponseFactory
      */
     public function create(): Response|ResponseFactory {
-        return inertia("Post/Create");
+        // Проверка кэша на наличие записи данных для формы
+        $user_id = 'post_user_' . auth()->id();
+        $post_cache = Cache::has($user_id) ? Cache::get($user_id) : '';
+
+        return inertia("Post/Create", compact('post_cache'));
     }
 
     /**
@@ -73,15 +79,27 @@ class PostController extends Controller {
         if (!empty($data["image_url"])) {
             $data["image_url"] = Storage::disk('local')->put('public/images/main_img', $data["image_url"]);
         }
+
+        $data["auth_id"] = auth()->id();
+
+        // Запись в БД
         $post = Post::query()->create($data);
 
+        // Запись в кэш созданной в БД
         $post = Cache::rememberForever('posts:' . $post->id, function () use ($post) {
             return PostResource::make($post)->resolve();
         });
 
+        // Обновление кэша всех постов
         $posts = Post::all();
         $posts = PostResource::collection($posts)->resolve();
         Cache::put('posts:all', $posts);
+
+        // Удаление заполненной формы поста
+        $user_id = 'post_user_' . auth()->id();
+        if (Cache::has($user_id)) {
+            Cache::forget($user_id);
+        }
 
         return redirect()->route('post.show', $post['id']);
     }
@@ -109,6 +127,25 @@ class PostController extends Controller {
         $posts = PostResource::collection($posts)->resolve();
         Cache::put('posts:all', $posts);
 
+        return response()->json($post);
+    }
+
+    /**
+     * Запись данных в кэш для хранения и отображения в форме при загрузке
+     *
+     * @param PostStoreCacheRequest $request
+     *
+     * @return JsonResponse
+     */
+    public function storePostCache(PostStoreCacheRequest $request): JsonResponse {
+        $data = $request->validated();
+        $user_id = 'post_user_' . auth()->id();
+
+        // Запись
+        Cache::put($user_id, $data);
+
+        // Проверка/Тестирование
+        $post = Cache::get($user_id);
         return response()->json($post);
     }
 

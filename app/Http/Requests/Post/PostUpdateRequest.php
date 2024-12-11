@@ -23,9 +23,10 @@ class PostUpdateRequest extends FormRequest {
     public function rules(): array {
         // dd($this->all());
         return [
-            'title'       => 'required|string',
-            'description' => 'nullable|string',
-            'image_url'   => 'nullable|file|mimes:jpeg,jpg,bmp,png',
+            'title'           => 'required|string',
+            'description'     => 'nullable|string',
+            'days_for_create' => 'nullable|integer',
+            'image_url'       => 'nullable|file|mimes:jpeg,jpg,bmp,png',
             // 'image_url'   => 'nullable|string',
         ];
     }

@@ -7,7 +7,7 @@ namespace App\Http\Requests\Post;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class PostStoreRequest extends FormRequest {
+class PostStoreCacheRequest extends FormRequest {
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -23,7 +23,7 @@ class PostStoreRequest extends FormRequest {
     public function rules(): array {
         // dd($this->all());
         return [
-            'title'           => 'required|string',
+            'title'           => 'nullable|string',
             'description'     => 'nullable|string',
             'days_for_create' => 'nullable|integer',
             'image_url'       => 'nullable|file|mimes:jpeg,jpg,bmp,png',
