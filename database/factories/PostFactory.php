@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Database\Factories;
 
 use App\Models\Post;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Random\RandomException;
 
@@ -24,6 +25,9 @@ class PostFactory extends Factory {
             'description' => fake()->realText(random_int(100, 120)),
 
             'image_url' => fake()->imageUrl(1200, 400, 'clothes', true),
+
+            'days_for_create' => random_int(1, 11),
+            'auth_id'         => User::query()->first()->id,
 
             'created_at' => fake()->dateTimeBetween('-60 days', '-30 days'),
             'updated_at' => fake()->dateTimeBetween('-20 days', '-1 days'),

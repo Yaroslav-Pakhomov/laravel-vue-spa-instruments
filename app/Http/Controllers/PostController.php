@@ -7,7 +7,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Post\PostStoreCacheRequest;
 use App\Http\Requests\Post\PostStoreRequest;
 use App\Http\Requests\Post\PostUpdateRequest;
-use App\Http\Resources\Post\PostCacheResource;
 use App\Http\Resources\Post\PostResource;
 use App\Models\Post;
 use Illuminate\Http\JsonResponse;
@@ -45,10 +44,10 @@ class PostController extends Controller {
     // $post = PostResource::make($post)->resolve();
     public function show(int $id): Response|ResponseFactory|RedirectResponse {
         // Если нет в кэше
-        if (!Cache::has("posts:{$id}")) {
+        if (!Cache::has("posts:$id")) {
             return redirect()->route('post.index');
         }
-        $post = Cache::get("posts:{$id}");
+        $post = Cache::get("posts:$id");
 
         return inertia("Post/Show", compact('post'));
     }
@@ -199,8 +198,8 @@ class PostController extends Controller {
         $posts = PostResource::collection($posts)->resolve();
 
         // Если есть в кэше
-        if (Cache::has("posts:{$post->id}")) {
-            Cache::forget("posts:{$post->id}");
+        if (Cache::has("posts:$post->id")) {
+            Cache::forget("posts:$post->id");
         }
 
         return inertia("Post/Index", compact('posts'));

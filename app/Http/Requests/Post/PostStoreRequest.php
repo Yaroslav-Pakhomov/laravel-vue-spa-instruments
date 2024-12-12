@@ -26,6 +26,7 @@ class PostStoreRequest extends FormRequest {
             'title'           => 'required|string',
             'description'     => 'nullable|string',
             'days_for_create' => 'nullable|integer',
+            'auth_id'         => 'required|integer',
             'image_url'       => 'nullable|file|mimes:jpeg,jpg,bmp,png',
             // 'image_url'   => 'nullable|string',
         ];

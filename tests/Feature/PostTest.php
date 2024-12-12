@@ -46,6 +46,7 @@ class PostTest extends TestCase {
          */
         $this->withoutExceptionHandling();
 
+        User::factory()->create();
         Post::factory(5)->create();
 
         $response = $this->get('/post');
@@ -66,6 +67,7 @@ class PostTest extends TestCase {
          */
         $this->withoutExceptionHandling();
 
+        User::factory()->create();
         $post = Post::factory()->create();
 
         $response = $this->get('/post/' . $post->id);
@@ -111,11 +113,12 @@ class PostTest extends TestCase {
         // 2-ой способ создания файла
         // $file = File::create('my_img.jpg');
 
+        $user = User::factory()->create();
         // Создание поста
         $post = Post::factory()->create();
         $post["image_url"] = $test_img;
 
-        $response = $this->post('/post', $post->toArray());
+        $response = $this->actingAs($user)->post('/post', $post->toArray());
 
         // Также проверка ответа на статус 200
         // $response->assertOk();
@@ -150,6 +153,7 @@ class PostTest extends TestCase {
          */
         $this->withoutExceptionHandling();
 
+        User::factory()->create();
         $post = Post::factory()->create();
 
         $response = $this->get('/post/' . $post->id . '/edit');
@@ -178,6 +182,7 @@ class PostTest extends TestCase {
             'image_url'   => $test_img,
         ];
 
+        User::factory()->create();
         // Создание поста
         $post = Post::factory()->create();
 
@@ -219,10 +224,10 @@ class PostTest extends TestCase {
          */
         $this->withoutExceptionHandling();
 
-        // Создание поста
-        $post = Post::factory()->create();
         // Создание пользователя
         $user = User::factory()->create();
+        // Создание поста
+        $post = Post::factory()->create();
 
         // Удаление поста авторизованным пользователем actingAs()
         $response = $this->actingAs($user)->delete('/post/' . $post->id);
@@ -246,6 +251,7 @@ class PostTest extends TestCase {
      * @return void
      */
     public function test_get_post_only_auth_delete(): void {
+        User::factory()->create();
         // Создание поста
         $post = Post::factory()->create();
 
@@ -279,6 +285,7 @@ class PostTest extends TestCase {
         // -------------------------------------
         // Проверка 'required' - начало
         // -------------------------------------
+        User::factory()->create();
         // Создание поста
         $post = Post::factory()->create();
         // Изменение данных для проверки
@@ -330,6 +337,7 @@ class PostTest extends TestCase {
         // -------------------------------------
         // Проверка 'string' - начало
         // -------------------------------------
+        User::factory()->create();
         // Создание поста
         $post = Post::factory()->create();
         // Изменение данных для проверки
@@ -361,6 +369,7 @@ class PostTest extends TestCase {
         // -------------------------------------
         // Проверка 'file' - начало
         // -------------------------------------
+        User::factory()->create();
         // Создание поста
         $post = Post::factory()->create();
 

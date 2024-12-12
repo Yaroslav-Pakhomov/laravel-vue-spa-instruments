@@ -49,6 +49,7 @@ class PostController extends Controller {
         if (!empty($data["image_url"])) {
             $data["image_url"] = Storage::disk('local')->put('public/images/main_img', $data["image_url"]);
         }
+
         $post = Post::query()->create($data);
 
         // dd(PostResource::make($post)->resolve());

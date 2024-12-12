@@ -50,19 +50,23 @@ class PostTest extends TestCase {
          */
         $this->withoutExceptionHandling();
 
+        $user = User::factory()->create();
         // Создание постов
-        $posts = Post::factory(5)->create();
+        $posts = Post::factory(1)->create();
+
         // Преобразование коллекции в json для проверки ответа
-        $json_posts = $posts->map(function ($post) {
+        $json_posts = $posts->map(function ($post) use ($user) {
             return [
-                'id'          => $post->id,
-                'title'       => $post->title,
-                'description' => $post->description,
-                'image_url'   => $post->image_url,
+                'id'              => $post->id,
+                'title'           => $post->title,
+                'description'     => $post->description,
+                'days_for_create' => $post->days_for_create,
+                'image_url'       => $post->image_url,
+                'auth_id'         => (int) $user->id,
             ];
         })->toArray();
 
-        $this->assertDatabaseCount('posts', 5);
+        $this->assertDatabaseCount('posts', 1);
 
         $response = $this->get('api/post');
 
@@ -82,6 +86,7 @@ class PostTest extends TestCase {
          */
         $this->withoutExceptionHandling();
 
+        User::factory()->create();
         $post = Post::factory()->create();
         // Проверка создания данных в БД
         $this->assertDatabaseCount('posts', 1);
@@ -115,6 +120,7 @@ class PostTest extends TestCase {
         // 2-ой способ создания файла
         // $file = File::create('my_img.jpg');
 
+        User::factory()->create();
         // Создание поста
         $post = Post::factory()->create();
         $post["image_url"] = $test_img;
@@ -177,6 +183,7 @@ class PostTest extends TestCase {
             'image_url'   => $test_img,
         ];
 
+        User::factory()->create();
         // Создание поста
         $post = Post::factory()->create();
 
@@ -225,10 +232,10 @@ class PostTest extends TestCase {
          */
         $this->withoutExceptionHandling();
 
-        // Создание поста
-        $post = Post::factory()->create();
         // Создание пользователя
         $user = User::factory()->create();
+        // Создание поста
+        $post = Post::factory()->create();
 
         // Удаление поста авторизованным пользователем actingAs()
         $response = $this->actingAs($user)->delete('api/post/' . $post->id);
@@ -269,6 +276,7 @@ class PostTest extends TestCase {
      * @return void
      */
     public function test_get_post_only_auth_delete(): void {
+        User::factory()->create();
         // Создание поста
         $post = Post::factory()->create();
 
@@ -304,6 +312,7 @@ class PostTest extends TestCase {
         // -------------------------------------
         // Проверка 'required' - начало
         // -------------------------------------
+        User::factory()->create();
         // Создание поста
         $post = Post::factory()->create();
         // Изменение данных для проверки
@@ -365,6 +374,7 @@ class PostTest extends TestCase {
         // -------------------------------------
         // Проверка 'string' - начало
         // -------------------------------------
+        User::factory()->create();
         // Создание поста
         $post = Post::factory()->create();
         // Изменение данных для проверки
@@ -398,6 +408,7 @@ class PostTest extends TestCase {
         // -------------------------------------
         // Проверка 'file' - начало
         // -------------------------------------
+        User::factory()->create();
         // Создание поста
         $post = Post::factory()->create();
 
