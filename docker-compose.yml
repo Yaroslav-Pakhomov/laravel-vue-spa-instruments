@@ -51,6 +51,19 @@ services:
                 - '${DB_USERNAME}'
             retries: 3
             timeout: 5s
+    rabbitmq:
+        image: 'rabbitmq:4.1-rc-management'
+        restart: always
+        ports:
+            # AMQP protocol port
+            - "5672:5672"
+            # HTTP management UI
+            - "15672:15672"
+        environment:
+            RABBITMQ_DEFAULT_USER: guest
+            RABBITMQ_DEFAULT_PASS: guest
+        networks:
+            - sail
     redis:
         image: 'redis:alpine'
         ports:
