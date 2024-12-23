@@ -31,23 +31,39 @@ class RabbitmqPublishCommand extends Command {
      * @throws Exception
      */
     public function handle(): void {
-        // 15672
+        // Соединение с сервисом RabbitMQ
         $connection = new AMQPStreamConnection('rabbitmq', 5672, 'guest', 'guest');
         $channel = $connection->channel();
 
-        // $queue_name = 'instruments_admin';
-        // $exchange_name = 'laravel_instruments';
-        // $binding_key = 'admin';
-        // $channel->queue_bind($queue_name, $exchange_name, $binding_key);
+        // $msg = new AMQPMessage('Hello World!');
 
-        $channel->queue_declare('hello', false, false, false, false);
+        // Название обменника
+        $exchange_name = 'laravel_instruments';
+        // Соединение с обменником
+        $channel->exchange_declare($exchange_name, 'direct', false, true, false);
 
-        $msg = new AMQPMessage('Hello World!');
-        $channel->basic_publish($msg, '', 'hello');
+        // Router key с типом direct
+        $binding_key = 'admin';
+        // Само сообщение
+        $msg = new AMQPMessage('Hello World! ' . $binding_key . '.');
+        // Отправка в обменник
+        $channel->basic_publish($msg, $exchange_name, $binding_key);
+
+        $binding_key = 'dev';
+        $msg = new AMQPMessage('Hello World! ' . $binding_key . '.');
+        $channel->basic_publish($msg, $exchange_name, $binding_key);
+
+        $binding_key = 'client';
+        $msg = new AMQPMessage('Hello World! ' . $binding_key . '.');
+        $channel->basic_publish($msg, $exchange_name, $binding_key);
+
+        // $queue_name = 'hello';
+        // $channel->queue_declare($queue_name, false, false, false, false);
+        // $channel->basic_publish($msg, '', 'hello');
 
         echo " [x] Sent 'Hello World!'\n";
-        // $channel->queue_declare('hello', false, false, false, false);
 
+        // Отсоединение от сервиса RabbitMQ
         $channel->close();
         $connection->close();
     }
