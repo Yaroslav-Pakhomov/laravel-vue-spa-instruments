@@ -45,7 +45,12 @@ class RabbitmqPublishCommand extends Command {
         // Router key с типом direct
         $binding_key = 'admin';
         // Само сообщение
-        $msg = new AMQPMessage('Hello World! ' . $binding_key . '.');
+        // $msg = new AMQPMessage('Hello World! ' . $binding_key . '.');
+        $data = [
+            'title'   => 'Some title',
+            'content' => 'Some content',
+        ];
+        $msg = new AMQPMessage(json_encode($data));
         // Отправка в обменник
         $channel->basic_publish($msg, $exchange_name, $binding_key);
 

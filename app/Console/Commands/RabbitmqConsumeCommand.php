@@ -51,7 +51,10 @@ class RabbitmqConsumeCommand extends Command {
 
         // Обработка полученного сообщения по нужно логике
         $callback = function ($msg) {
-            echo ' [x] Received ', $msg->body, "\n";
+            $data = json_decode($msg->body, true);
+            // Здесь можно обратиться к Моделям, Заданию(Job) для написания логики и т.д.
+            print_r($data);
+            // echo ' [x] Received ', $msg->body, "\n";
         };
 
         // Исполнение логики
