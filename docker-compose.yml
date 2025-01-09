@@ -64,6 +64,22 @@ services:
             RABBITMQ_DEFAULT_PASS: guest
         networks:
             - sail
+    clickhouse:
+        image: 'clickhouse/clickhouse-server:latest'
+        ports:
+            - '${CLICKHOUSEDB_PORT:-8123}:8123'
+            - '${CLICKHOUSEDB_CLIENT_PORT:-9000}:9000'
+            - '${CLICKHOUSEDB_MYSQL_PORT:-9004}:9004'
+        volumes:
+            - sail-clickhouse:/var/lib/clickhouse
+        #            - ./data/clickhouse/data:/var/lib/clickhouse
+        environment:
+            CLICKHOUSE_USER: click
+            CLICKHOUSE_PASSWORD: click
+        networks:
+            - sail
+        healthcheck:
+            test: wget --no-verbose --tries=1 --spider http://localhost:${CLICKHOUSEDB_PORT:-8123}/ping || exit 1
     redis:
         image: 'redis:alpine'
         ports:
@@ -93,4 +109,6 @@ volumes:
     sail-pgsql:
         driver: local
     sail-redis:
+        driver: local
+    sail-clickhouse:
         driver: local
