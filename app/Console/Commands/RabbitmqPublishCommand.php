@@ -6,6 +6,7 @@ namespace App\Console\Commands;
 
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Config;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Message\AMQPMessage;
 
@@ -32,7 +33,13 @@ class RabbitmqPublishCommand extends Command {
      */
     public function handle(): void {
         // Соединение с сервисом RabbitMQ
-        $connection = new AMQPStreamConnection('rabbitmq', 5672, 'guest', 'guest');
+        // 'rabbitmq', 5672, 'guest', 'guest'
+        $connection = new AMQPStreamConnection(
+            Config::get('rabbitmq.host'),
+            Config::get('rabbitmq.port'),
+            Config::get('rabbitmq.user'),
+            Config::get('rabbitmq.password'),
+        );
         $channel = $connection->channel();
 
         // $msg = new AMQPMessage('Hello World!');
@@ -47,8 +54,8 @@ class RabbitmqPublishCommand extends Command {
         // Само сообщение
         // $msg = new AMQPMessage('Hello World! ' . $binding_key . '.');
         $data = [
-            'title'   => 'Some title',
-            'content' => 'Some content',
+            'title'   => 'Some title admin.',
+            'content' => 'Some content admin.',
         ];
         $msg = new AMQPMessage(json_encode($data));
         // Отправка в обменник
