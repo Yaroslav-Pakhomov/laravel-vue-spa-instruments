@@ -72,7 +72,6 @@ services:
             - '${CLICKHOUSEDB_MYSQL_PORT:-9004}:9004'
         volumes:
             - sail-clickhouse:/var/lib/clickhouse
-        #            - ./data/clickhouse/data:/var/lib/clickhouse
         environment:
             CLICKHOUSE_USER: click
             CLICKHOUSE_PASSWORD: click
