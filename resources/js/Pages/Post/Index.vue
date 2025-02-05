@@ -1,4 +1,6 @@
 <script>
+// import { usePage } from '@inertiajs/inertia-vue3';
+import { Link, usePage  } from "@inertiajs/vue3";
 
 export default {
     /**
@@ -9,7 +11,9 @@ export default {
     /**
      * Подключенные компоненты
      */
-    components: {},
+    components: {
+        // usePage
+    },
 
     /**
      * Передаваемые св-ва от родителя и/или от контроллера
@@ -26,7 +30,8 @@ export default {
     },
 
     mounted() {
-
+        console.log(usePage());
+        console.log(usePage().url);
     },
 
     /**

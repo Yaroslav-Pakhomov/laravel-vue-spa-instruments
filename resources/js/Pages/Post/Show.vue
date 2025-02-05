@@ -1,5 +1,7 @@
 <script>
 
+import {usePage} from "@inertiajs/vue3";
+
 export default {
     /**
      * Название компонента
@@ -26,7 +28,18 @@ export default {
     },
 
     mounted() {
-
+        // console.log(this.$data);
+        // console.log(this.$props);
+        // console.log(this.$el);
+        // console.log(this.$options);
+        // console.log(this.$parent);
+        // console.log(this.$root);
+        // console.log(this.$slots);
+        // console.log(this.$refs);
+        console.log(this.$attrs);
+        console.log(this.$page);
+        console.log(usePage());
+        console.log(usePage().url);
     },
 
     /**
