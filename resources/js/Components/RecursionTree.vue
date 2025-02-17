@@ -42,7 +42,7 @@ export default {
     },
 
     mounted() {
-        console.log(this.ml)
+        // console.log(this.ml)
     },
 
     data() {
