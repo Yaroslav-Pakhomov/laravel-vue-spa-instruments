@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Events\StoreMessageEvent;
 use App\Http\Requests\StoreMessageRequest;
 use App\Http\Requests\UpdateMessageRequest;
 use App\Http\Resources\Message\MessageResource;
@@ -50,6 +51,9 @@ class MessageController extends Controller
         $validated = $request->validated();
         $validated['user_id'] = auth()->id();
         $message = Message::query()->create($validated);
+
+        // Подключение события создания сообщения
+        event(new StoreMessageEvent($message));
 
         return MessageResource::make($message)->resolve();
     }
