@@ -8,11 +8,16 @@ use App\Http\Resources\Message\MessageResource;
 use App\Models\Message;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class StoreMessageEvent implements ShouldBroadcast
+// use Illuminate\Broadcasting\PrivateChannel;
+// use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+
+
+// ShouldBroadcast - для очередей (Queue) с заданиями (Jobs)
+class StoreMessageEvent implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -29,18 +34,21 @@ class StoreMessageEvent implements ShouldBroadcast
     /**
      * Get the channels the event should broadcast on.
      *
-     * @return array<int, \Illuminate\Broadcasting\Channel>
+     * @return array<int, Channel>
      */
     public function broadcastOn(): array
     {
         return [
             // new PrivateChannel('channel-name'),
+            // new PresenceChannel('store_message'),
             new Channel('store_message'),
         ];
     }
 
     /**
      * Имя вещания события.
+     *
+     * @return string
      */
     public function broadcastAs(): string
     {

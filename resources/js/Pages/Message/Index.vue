@@ -1,5 +1,5 @@
 <template>
-    <div class="w-2/3 mx-auto text-center"> Сообщения главная</div>
+    <div class="w-2/3 mx-auto mt-3 text-center"> Сообщения главная</div>
     <div class="w-fullbg-white rounded-lg border p-1 md:p-3 m-10">
         <div class="w-full px-3 mb-2 mt-6">
             <textarea
@@ -91,12 +91,19 @@ export default {
         }
     },
 
+    created() {
+        window.Echo.channel('store_message')
+            .listen('.store_message', (res) => {
+                this.messages.unshift(res.message);
+                console.log(res.message);
+            });
+    },
+
     /**
      * Действия перед загрузкой страницы
      */
     mounted() {
         console.log(this.messages);
-        console.log(Object.keys(this.messages).length);
     },
 
     /**
@@ -106,10 +113,8 @@ export default {
         sendForm() {
             axios.post(this.route('message.storeAsync'), {'body': this.message})
                 .then(res => {
-                    console.log(res.data);
                     this.messages.unshift(res.data);
                     this.message = '';
-                        // = [res.data, ...this.messages];
                 })
                 .catch(error => {
                     console.log(error);

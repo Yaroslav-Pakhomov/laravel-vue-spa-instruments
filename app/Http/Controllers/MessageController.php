@@ -53,7 +53,8 @@ class MessageController extends Controller
         $message = Message::query()->create($validated);
 
         // Подключение события создания сообщения
-        event(new StoreMessageEvent($message));
+        // event(new StoreMessageEvent($message));
+        broadcast(new StoreMessageEvent($message))->toOthers();
 
         return MessageResource::make($message)->resolve();
     }

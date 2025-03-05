@@ -1,5 +1,8 @@
 import Echo from 'laravel-echo';
 
+import axios from 'axios';
+window.axios = axios;
+
 import Pusher from 'pusher-js';
 window.Pusher = Pusher;
 
@@ -20,3 +23,6 @@ window.Echo = new Echo({
     cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
     forceTLS: true
 });
+
+// Идентификатор сокета подключения для исключения дублирования сообщения у отправителя
+window.axios.defaults.headers.common['X-Socket-Id'] = window.Echo.socketId();
