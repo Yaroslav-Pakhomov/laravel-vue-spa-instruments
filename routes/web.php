@@ -3,6 +3,7 @@
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -63,6 +64,11 @@ Route::middleware('auth')->group(function () {
         // Route::get('/{post}/edit', 'edit')->name('edit');
         // Route::patch('/{post}', 'update')->name('update');
         // Route::delete('/{post}', 'delete')->name('delete');
+    });
+
+    Route::controller(UserController::class)->prefix('/users')->name('users.')->group(function () {
+        Route::get('/{user}', 'show')->name('show');
+        Route::post('/{user}', 'sendLike')->name('send-like');
     });
 });
 
