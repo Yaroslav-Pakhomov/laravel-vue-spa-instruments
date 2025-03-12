@@ -28,15 +28,25 @@ export default {
         }
     },
 
+    created() {
+        // window.Echo.channel(`send_like_${this.$page.props.auth.user.id}`)
+        window.Echo.private(`send_like_${this.$page.props.auth.user.id}`)
+            .listen('.send_like', res => {
+                console.log(res.like_str);
+                this.like_str = res.like_str;
+            });
+    },
+
     methods: {
         sendLike() {
-            console.log(this.$page.props);
-            console.log(this.$props);
-            console.log(this.$props.user.id);
+            // console.log(this.$page.props);
+            // console.log(this.$props);
+            // console.log(this.$props.user.id);
             axios.post(this.route('users.send-like', this.user.id), {from_id: this.$page.props.auth.user.id})
                 .then(res => {
-                    console.log(res);
-                    this.like_str = res.data.like_str;
+                    console.log(res.data.like_str);
+                    // this.like_str = res.data.like_str;
+                    this.like_str = 'Вы отправили лайк пользователю с ID: ' + this.user.id;
                 })
                 .catch(err => {
                     console.log(err);

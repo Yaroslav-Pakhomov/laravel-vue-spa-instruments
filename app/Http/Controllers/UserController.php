@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Events\SendLikeEvent;
 use App\Http\Requests\User\SendLikeRequest;
 use App\Models\User;
 use Inertia\Response;
@@ -26,7 +27,10 @@ class UserController extends Controller
     public function sendLike(SendLikeRequest $request, User $user): \Illuminate\Http\JsonResponse
     {
         $validated = $request->validated();
-        $likeStr = 'Лайк поставил пользователь с ID ' . $validated['from_id'];
+        $likeStr = 'Лайк поставил пользователь с ID: ' . $validated['from_id'];
+
+        broadcast(new SendLikeEvent($likeStr, $user->id))->toOthers();
+
         return response()->json(['validated' => $validated, 'user' => $user, 'like_str' => $likeStr]);
     }
 }
